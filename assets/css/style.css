@@ -1,0 +1,43 @@
+.CodeMirror {
+    border: 1px solid black;
+    font-size: 13px;
+}
+
+footer{
+    height: 50px;
+    background-color: #f5f5f5;
+}
+
+footer p{
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+}
+
+#result{
+  margin-bottom: 50px;
+}
+
+.row{
+  margin-bottom: 20px;
+}
+
+.sparql-example{
+  cursor: pointer;
+}
+
+#xsltcontainer{
+  display: none;
+}
+
+.panel-body{
+  max-height: 300px;
+  overflow: scroll;
+}
+
+.pre-scrollable {
+    max-height: 550px;
+    overflow-y: scroll;
+}
