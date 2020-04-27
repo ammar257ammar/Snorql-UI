@@ -11,9 +11,10 @@ Live Demo of Snorql extended:  https://ammar257ammar.github.io/snorql-extended
 ## Features
 
 1.  Modern web UI built with [HTML5](https://en.wikipedia.org/wiki/HTML5), [Bootstrap 3.3.7](https://getbootstrap.com/docs/3.3/getting-started/)  and [JQuery](https://jquery.com/).
-2. Text editor [CodeMirror](https://codemirror.net/) for the SPARQL query with awesome features like SPARQL syntax highlighter, line numbering and bracket matching.
-3. SPARQL examples panel that can fetch SPARQL queries (.rq extension) from any Github repository on fly and execute them against the SPARQL endpoint of your choice
-4. No need for any backend programming language!! it is totally a front end application.
+2.  Responsive design with wonderful look on mobiles and tablets.
+3.  Text editor [CodeMirror](https://codemirror.net/) for the SPARQL query with awesome features like SPARQL syntax highlighter, line numbering and bracket matching.
+4.  SPARQL examples panel that can fetch SPARQL queries (.rq extension) from any Github repository on fly and execute them against the SPARQL endpoint of your choice
+5.  No need for any backend programming language!! it is totally a front end application.
 
 
 
