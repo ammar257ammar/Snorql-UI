@@ -296,7 +296,17 @@ function Snorql() {
         var mode = this._selectedOutputMode();
         if (mode == 'browse') {
             document.getElementById('queryform').action = this._browserBase;
-            document.getElementById('query').value = editor.getValue();
+
+            var lines = editor.getValue().split("\n");
+
+            for(var i = 0;i < lines.length;i++){
+
+                if(lines[i].startsWith("#")){
+                    lines.splice(i,1);
+                }
+            }
+
+            document.getElementById('query').value = lines.join("\n");
         } else {
             document.getElementById('query').value = this._getPrefixes() + document.getElementById('querytext').value;
             document.getElementById('queryform').action = this._endpoint;
