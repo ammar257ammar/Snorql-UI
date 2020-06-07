@@ -25,6 +25,8 @@ function fetchExamples() {
     }
 }
 
+(function ($) {
+
 jQuery(document).ready(function() {
 
 		jQuery("#fetch").on("click",function(){
@@ -41,4 +43,14 @@ jQuery(document).ready(function() {
 				}
 			  });
 		});
+
+        jQuery("#exportCSV").on("click",function(){
+
+            if(jQuery("#queryresults").length){
+                jQuery("#queryresults").table2CSV();
+            }else{
+              alert("Try to export after getting query results, nothing to export for now!");
+            }
+        });
 } );
+})(jQuery);
