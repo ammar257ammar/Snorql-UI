@@ -33,9 +33,9 @@
 	sparqler.addNamedGraph("http://torrez.us/elias/foaf.rdf");
 	sparqler.setPrefix("foaf", "http://xmlns.com/foaf/0.1/"); // inherited by all (future) queries
 	sparqler.setPrefix("rdf", "http://xmlns.com/foaf/0.1/");
-	
+
 	sparqler.setRequestHeader("Authentication", "Basic: " + basicAuthString);
-	
+
 	//sparqler.wantOutputAs("application/json"); // for now we only do JSON
 
 	var query = sparqler.createQuery();
@@ -52,23 +52,23 @@
 	// passes boolean value to success callback
 	query.ask("ASK ?person WHERE { ?person foaf:knows [ foaf:name "Dan Connolly" ] }",
 		{failure: onFailure, success: function(bool) { if (bool) ... }}
-	); 
+	);
 
 	// passes a single vector (array) of values representing a single column of results to success callback
 	query.setPrefix("ldf", "http://thefigtrees.net/lee/ldf-card#");
 	var addresses = query.selectValues("SELECT ?mbox WHERE { _:someone foaf:mbox ?mbox }",
 		{failure: onFailure, success: function(values) { for (var i = 0; i < values.length; i++) { ... values[i] ...} } }
-	); 
+	);
 
 	// passes a single value representing a single row of a single column (variable) to success callback
 	query.setPrefix("ldf", "http://thefigtrees.net/lee/ldf-card#");
 	var myAddress = query.selectSingleValue("SELECT ?mbox WHERE {ldf:LDF foaf:mbox ?mbox }",
 		{failure: onFailure, success: function(value) { alert("value is: " + value); } }
-	); 
-	
+	);
+
 	// shortcuts for all of the above (w/o ability to set any query-specific graphs or prefixes)
 	sparqler.query(...) sparqler.ask(...) sparqler.selectValues(...) sparqler.selectSingleValue(...)
- 
+
 
  */
 
@@ -143,7 +143,8 @@ SPARQL.Service = function(endpoint) {
 	var _named_graphs = [];
 	var _prefix_map = {};
     var _method = 'POST';
-	var _output = 'json';
+	//var _output = 'format=application/sparql-results%2Bjson';
+    var _output = 'json';
 	var _max_simultaneous = 0;
 	var _request_headers = {};
 
@@ -177,7 +178,7 @@ SPARQL.Service = function(endpoint) {
 	this.setOutput = function(o) { _output = o; };
 	this.setMaxSimultaneousQueries = function(m) { _max_simultaneous = m; };
 	this.setRequestHeader = function(h, v) { _request_headers[h] = v; };
-	
+
 	//---------------
 	// protected methods (should only be called within this module
 	this._active_queries = 0;
@@ -198,7 +199,7 @@ SPARQL.Service = function(endpoint) {
 	};
 	this._markRunning = function(q) { this._active_queries++; };
 	this._markDone    = function(q) { 
-		this._active_queries--; 
+		this._active_queries--;
 		//document.getElementById('log').innerHTML+="query done. " + this._active_queries + " queries still active.<br>";
 		if (this._queued_queries[this._next_in_queue] != null && this._canRun()) {
 			var a = this._queued_queries[this._next_in_queue];
@@ -226,7 +227,7 @@ SPARQL.Service = function(endpoint) {
 	
 	//------------
 	// constructor
-    
+
 	if (!_endpoint)
 		return null;
 	
@@ -255,7 +256,7 @@ SPARQL.Query = function(service, priority) {
 
 	//------------------
 	// private functions
-	function _create_json(text) { 
+	function _create_json(text) {
 		if (!text)
 			return null;
 		// make sure this is safe JSON
@@ -277,10 +278,10 @@ SPARQL.Query = function(service, priority) {
 		}
 		return null; 
 	}	
-	
-	function clone_obj(o) { 
-		var o2 = o instanceof Array ? [] : {}; 
-		for(var x in o) {o2[x] = o[x];} 
+
+	function clone_obj(o) {
+		var o2 = o instanceof Array ? [] : {};
+		for(var x in o) {o2[x] = o[x];}
 		return o2;
 	}
 
@@ -292,12 +293,12 @@ SPARQL.Query = function(service, priority) {
 		if (which in cb) {
 			if (cb.scope) {
                 cb[which].apply(cb.scope, [arg, user_data]);
-			} else { 
-				cb[which](arg, user_data); 
+			} else {
+				cb[which](arg, user_data);
 			}
 		}
 	}
-	
+
 	this._queryFailure = function(xhr, arg) {
 		SPARQL.statistics.failures++;
 		_service._markDone(this);
@@ -311,12 +312,12 @@ SPARQL.Query = function(service, priority) {
 			_output == 'json' ? _create_json(xhr.responseText) : xhr.responseText
 		));
 	};
-	
+
 	function getXmlHttpRequest(url) {
 		// right now, this only does Firefox (Opera? Safari?)
 		return new XMLHttpRequest();
 	}
-	
+
 	this._doQuery = function(queryString, callback, transformer) {
 		_user_query = queryString;
 		if (_service._canRun()) {
@@ -353,7 +354,7 @@ SPARQL.Query = function(service, priority) {
 				_service._markRunning(this);
 	
 				var callbackData = {
-					scope: this, 
+					scope: this,
 					success: this._querySuccess, 
 					failure: this._queryFailure,
 					argument: {
@@ -421,24 +422,32 @@ SPARQL.Query = function(service, priority) {
 	
     /**
      * Returns the HTTP query parameters to invoke this query. This includes entries for
-     * all of the default graphs, the named graphs, the SPARQL query itself, and an 
+     * all of the default graphs, the named graphs, the SPARQL query itself, and an
      * output parameter to specify JSON (or other) output is desired.
      */
 	this.queryParameters = function () {
 		var urlQueryString = '';
 		var i;
-		
+
 		// add default and named graphs to the protocol invocation
 		for (i = 0; i < this.defaultGraphs().length; i++) urlQueryString += 'default-graph-uri=' + encodeURIComponent(this.defaultGraphs()[i]) + '&';
 		for (i = 0; i < this.namedGraphs().length; i++) urlQueryString += 'named-graph-uri=' + encodeURIComponent(this.namedGraphs()[i]) + '&';
-		
+
 		// specify JSON output (currently output= supported by latest Joseki) (or other output)
-		urlQueryString += 'output=' + _output + '&';
+        /*
+        if(_output == "json"){
+            urlQueryString += "format=application/sparql-results%2Bjson&";
+        }else{
+            urlQueryString += 'output=' + _output + '&';
+        }
+        */
+        urlQueryString += 'output=' + _output + '&';
+
 		return urlQueryString + 'query=' + encodeURIComponent(this.queryString());
 	}
-	
+
     /**
-     * Returns the HTTP GET URL to invoke this query. (Note that this returns a full HTTP GET URL 
+     * Returns the HTTP GET URL to invoke this query. (Note that this returns a full HTTP GET URL
      * even if this query is set to actually use POST.)
      */
 	this.queryUrl = function() {

@@ -1,17 +1,16 @@
-var snorql = new Snorql();
-var service = new SPARQL.Service(snorql._endpoint);
+var _endpoint = "https://query.wikidata.org/sparql";
+var _examples_repo = "https://api.github.com/repos/egonw/SARS-CoV-2-Queries/contents/sparql";
+var _defaultGraph = "";
+var _namespaces = snorql_namespacePrefixes;
 
-String.prototype.trim = function () {
-    return this.replace(/^\s*/, "").replace(/\s*$/, "");
-}
-
-String.prototype.startsWith = function(str) {
-	return (this.match("^"+str) == str);
-}
+var _poweredByLink = 'https://github.com/ammar257ammar/snorql-extended';
+var _poweredByLabel = 'Snorql - Extended Edition';
 
 function setCookie(cname, cvalue) {
     var d = new Date();
-    document.cookie = cname + "=" + cvalue;
+    d.setTime(d.getTime() + (365*24*60*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue+ ";" + expires + ";path=/";
 }
 
 function getCookie(cname) {
@@ -31,584 +30,370 @@ function getCookie(cname) {
 
 function changeEndpoint() {
     var newEp = document.getElementById("endpoint").value;
-    snorql._endpoint = newEp;
-    snorql._displayEndpointURL();
-    service.endpoint = newEp;
     setCookie("endpoint", newEp);
 }
 
 function changeExamplesRepo() {
     var newEx = document.getElementById("examples-repo").value;
-    snorql._examples_repo = newEx;
     setCookie("examplesrepo", newEx);
 }
 
-// from http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
-function getParameterByName(name, url) {
-    if (!url) url = window.location.href;
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
+function getPrefixes(){
+
+    prefixes = '';
+    for (prefix in _namespaces) {
+        var uri = _namespaces[prefix];
+        prefixes = prefixes + 'PREFIX ' + prefix + ': <' + uri + '>\n';
+    }
+    return prefixes;
 }
 
-function Snorql() {
-    this._endpoint = "https://query.wikidata.org/sparql";
-    this._examples_repo = "https://api.github.com/repos/egonw/SARS-CoV-2-Queries/contents/sparql";
-    this._poweredByLink = 'https://github.com/ammar257ammar';
-    this._poweredByLabel = 'Snorql - Extended Edition';
-    this._enableNamedGraphs = false;
+function fetchExamples() {
+    var repo = jQuery("#examples-repo").val();
+    if(!repo || (!repo.includes("https://github.com") && !repo.includes("https://api.github.com"))){
+        alert("Please enter SPARQL examples Github repo URL!!");
+    }else{
 
-    this._browserBase = null;
-    this._namespaces = {};
-    this._graph = null;
-    this._xsltDOM = null;
+        var link = repo;
 
-    this.start = function() {
-
-        document.getElementById("index-page").href = window.location.protocol + "//"
-                                                    + window.location.host
-                                                    + window.location.pathname;
-        // TODO: Extract a QueryType class
-        var ep = getCookie('endpoint');
-        if (ep != "") {
-            this._endpoint = ep;
-            document.getElementById('endpoint').value = ep;
+        if(repo.includes("https://github.com")){
+            link = "https://api.github.com/repos/"+repo.substring(19)+"/contents";
         }
 
-        var ex = getCookie('examplesrepo');
-        if (ex != "") {
-            this._examples_repo = ex;
-            document.getElementById('examples-repo').value = ex;
-        }else{
-            document.getElementById('examples-repo').value = this._examples_repo;
-        }
+        jQuery.ajax({
+	        url: link,
+		    dataType: 'json',
+		    success:function(response){
+		        jQuery("#examples").html('');
+    	        response.forEach(e => {
+    	          if(e["name"].endsWith(".rq")){
+                    jQuery("#examples").append("<li class=\"list-group-item sparql-example\">"+e["name"]+"<p class=\"hide\">"+e["download_url"]+"</p></li>");
+    	          }
+    	        });
+		    }
+	    });
+    }
+}
 
-        fetchExamples();
+function start(){
 
-        this.setBrowserBase(document.location.href.replace(/\?.*/, ''));
-        this._displayPoweredBy();
-        this.setNamespaces(D2R_namespacePrefixes);
-        this.updateOutputMode();
-        this._getPrefixes();
-        var match = document.location.href.match(/\?(.*)/);
-        var queryString = match ? match[1] : '';
-        if (!queryString) {
-            document.getElementById('querytext').value = 'SELECT DISTINCT * WHERE {\n  ?s ?p ?o\n}\nLIMIT 10';
-            this._updateGraph(null, false);
-            return;
-        }
-        var graph = queryString.match(/graph=([^&]*)/);
-        graph = graph ? decodeURIComponent(graph[1]) : null;
-        this._updateGraph(graph, false);
-        var browse = queryString.match(/browse=([^&]*)/);
-        var querytext = null;
-        if (browse && browse[1] == 'superclasses') {
-            var resultTitle = 'List of all super classes:';
-            var querytext = 'SELECT DISTINCT ?class\n' +
-                    'WHERE { [] rdfs:subClassOf ?class }\n' +
-                    'ORDER BY ?class';
-            var query = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n' + querytext;
-        }
-        if (browse && browse[1] == 'classes') {
-            var resultTitle = 'List of all classes:';
-            var query = 'SELECT DISTINCT ?class\n' +
-                    'WHERE { [] a ?class }\n' +
-                    'ORDER BY ?class';
-        }
-        if (browse && browse[1] == 'properties') {
-            var resultTitle = 'List of all properties:';
-            var query = 'SELECT DISTINCT ?property\n' +
-                    'WHERE { [] ?property [] }\n' +
-                    'ORDER BY ?property';
-        }
-        if (browse && browse[1] == 'graphs') {
-            var resultTitle = 'List of all named graphs:';
-            var querytext = 'SELECT DISTINCT ?namedgraph ?label\n' +
-                    'WHERE {\n' +
-                    '  GRAPH ?namedgraph { ?s ?p ?o }\n' +
-                    '  OPTIONAL { ?namedgraph rdfs:label ?label }\n' +
-                    '}\n' +
-                    'ORDER BY ?namedgraph';
-            var query = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n' + querytext;
-        }
-        var match = queryString.match(/property=([^&]*)/);
-        if (match) {
-            var resultTitle = 'All uses of property ' + decodeURIComponent(match[1]) + ':';
-            var query = 'SELECT DISTINCT ?resource ?value\n' +
-                    'WHERE { ?resource <' + decodeURIComponent(match[1]) + '> ?value }\n' +
-                    'ORDER BY ?resource ?value';
-        }
-        var match = queryString.match(/class=([^&]*)/);
-        if (match) {
-            var resultTitle = 'All instances of class ' + decodeURIComponent(match[1]) + ':';
-            var query = 'SELECT DISTINCT ?instance\n' +
-                    'WHERE { ?instance a <' + decodeURIComponent(match[1]) + '> }\n' +
-                    'ORDER BY ?instance';
-        }
-        var match = queryString.match(/describe=([^&]*)/);
-        if (match) {
-            var resultTitle = 'Description of ' + decodeURIComponent(match[1]) + ':';
-            var query = 'SELECT DISTINCT ?property ?hasValue ?isValueOf\n' +
-                    'WHERE {\n' +
-                    '  { <' + decodeURIComponent(match[1]) + '> ?property ?hasValue }\n' +
-                    '  UNION\n' +
-                    '  { ?isValueOf ?property <' + decodeURIComponent(match[1]) + '> }\n' +
-                    '}\n' +
-                    'ORDER BY (!BOUND(?hasValue)) ?property ?hasValue ?isValueOf';
-        }
-        if (queryString.match(/query=/)) {
-            var resultTitle = 'SPARQL results:';
-            querytext = this._betterUnescape(queryString.match(/query=([^&]*)/)[1]);
-            var query = prefixes + querytext;
-        }
-        if (!querytext) {
-            querytext = query;
-        }
-        document.getElementById('querytext').value = querytext;
-        editor.getDoc().setValue(querytext);
-        this.displayBusyMessage();
-        var service = new SPARQL.Service(this._endpoint);
-        if (this._graph) {
-            service.addDefaultGraph(this._graph);
-        }
-
-        // AndyL changed MIME type and success callback depending on query form...
-        var dummy = this;
-
-   	    var exp = /^\s*(?:PREFIX\s+\w*:\s+<[^>]*>\s*)*(\w+)\s*.*/i;
-   	    var match = exp.exec(querytext);
-   	    if (match) {
-	        if (match[1].toUpperCase() == 'ASK') {
-	        	service.setOutput('boolean');
-	        	var successFunc = function(value) {
-	                dummy.displayBooleanResult(value, resultTitle);
-	            };
-	        } else if (match[1].toUpperCase() == 'CONSTRUCT' || match[1].toUpperCase() == 'DESCRIBE'){ // construct describe
-	    		service.setOutput('rdf'); // !json
-	    		var successFunc = function(model) {
-	                dummy.displayRDFResult(model, resultTitle);
-	            };
-	        } else {
-	        	service.setRequestHeader('Accept', 'application/sparql-results+json,*/*');
-	        	service.setOutput('json');
-	        	var successFunc = function(json) {
-	        		dummy.displayJSONResult(json, resultTitle);
-	        	};
-	        }
-   	    }
-
-        service.query(query, {
-            success: successFunc,
-            failure: function(report) {
-                var message = report.responseText.match(/<pre>([\s\S]*)<\/pre>/);
-                if (message) {
-                    dummy.displayErrorMessage(message[1]);
-                } else {
-                    dummy.displayErrorMessage(report.responseText);
-                }
-            }
-        });
+    var ep = getCookie('endpoint');
+    if (ep != "") {
+        _endpoint = ep;
+        document.getElementById('endpoint').value = ep;
+    }else{
+        document.getElementById('endpoint').value = _endpoint;
     }
 
-    this.setBrowserBase = function(url) {
-        this._browserBase = url;
+    var ex = getCookie('examplesrepo');
+    if (ex != "") {
+        _examples_repo = ex;
+        document.getElementById('examples-repo').value = ex;
+    }else{
+        document.getElementById('examples-repo').value = _examples_repo;
     }
 
-    this._displayEndpointURL = function() {
-        var newTitle = 'Snorql: Exploring ' + this._endpoint;
-        document.title = newTitle;
+    fetchExamples();
+
+    $('#poweredby').attr('href', _poweredByLink);
+    $('#poweredby').text( _poweredByLabel);
+}
+
+function doQuery(url, sparql, callback) {
+
+    service = new SPARQL.Service(url);
+    service.setMethod('GET');
+    if (_defaultGraph != "") {
+        service.addDefaultGraph(_defaultGraph);
     }
 
-    this._displayPoweredBy = function() {
-        $('poweredby').href = this._poweredByLink;
-        $('poweredby').update(this._poweredByLabel);
-    }
+    service.setRequestHeader('Accept', 'application/sparql-results+json,*/*');
+    service.setOutput('json');
 
-    this.setNamespaces = function(namespaces) {
-        this._namespaces = namespaces;
-    }
+    busy = document.createElement('p');
+    busy.className = 'busy';
+    busy.appendChild(document.createTextNode('Executing query ...'));
+    setResult(busy);
+    service.query(sparql, {
+            success: callback,
+            failure: onFailure
+    });
+}
 
-    this.switchToGraph = function(uri) {
-        this._updateGraph(uri, true);
-    }
-
-    this.switchToDefaultGraph = function() {
-        this._updateGraph(null, true);
-    }
-
-    this._updateGraph = function(uri, effect) {
-        if (!this._enableNamedGraphs) {
-            return;
-        }
-        var changed = (uri != this._graph);
-        this._graph = uri;
-        var el = document.getElementById('graph-uri');
-        el.disabled = (this._graph == null);
-        el.value = this._graph;
-        if (this._graph == null) {
-            var show = 'default-graph-section';
-            var hide = 'named-graph-section';
-            $$('a.graph-link').each(function(link) {
-                match = link.href.match(/^(.*)[&?]graph=/);
-                if (match) link.href = match[1];
-            });
-        } else {
-            var show = 'named-graph-section';
-            var hide = 'default-graph-section';
-            $('selected-named-graph').update(this._graph);
-            var uri = this._graph;
-            $$('a.graph-link').each(function(link) {
-                match = link.href.match(/^(.*)[&?]graph=/);
-                if (!match) link.href = link.href + '&graph=' + uri;
-            });
-        }
-        $(hide).hide();
-        $(show).show();
-        if (effect && changed) {
-            new Effect.Highlight(show,
-                {startcolor: '#ffff00', endcolor: '#ccccff', resotrecolor: '#ccccff'});
-        }
-        $('graph-uri').disabled = (this._graph == null);
-        $('graph-uri').value = this._graph;
-    }
-
-    this.updateOutputMode = function() {
-        if (this._xsltDOM == null) {
-            this._xsltDOM = document.getElementById('xsltinput');
-        }
-        var el = document.getElementById('xsltcontainer');
-        while (el.childNodes.length > 0) {
-            el.removeChild(el.firstChild);
-        }
-        if (this._selectedOutputMode() == 'xslt') {
-            el.appendChild(this._xsltDOM);
-        }
-    }
-
-    this.resetQuery = function() {
-        document.location = this._browserBase;
-    }
-
-    this.submitQuery = function() {
-        var mode = this._selectedOutputMode();
-        if (mode == 'browse') {
-            document.getElementById('queryform').action = this._browserBase;
-
-            var lines = editor.getValue().split("\n");
-
-            for(var i = 0;i < lines.length;i++){
-
-                if(lines[i].startsWith("#")){
-                    lines.splice(i,1);
-                }
-            }
-
-            document.getElementById('query').value = lines.join("\n");
-        } else {
-            document.getElementById('query').value = this._getPrefixes() + document.getElementById('querytext').value;
-            document.getElementById('queryform').action = this._endpoint;
-        }
-        document.getElementById('jsonoutput').disabled = (mode != 'json');
-        document.getElementById('stylesheet').disabled = (mode != 'xslt' || !document.getElementById('xsltstylesheet').value);
-        if (mode == 'xslt') {
-            document.getElementById('stylesheet').value = document.getElementById('xsltstylesheet').value;
-        }
-        document.getElementById('queryform').submit();
-    }
-
-    this.displayBusyMessage = function() {
-        var busy = document.createElement('div');
-        busy.className = 'busy';
-        busy.appendChild(document.createTextNode('Executing query ...'));
-        this._display(busy, 'result');
-    }
-
-    this.displayErrorMessage = function(message) {
+function onFailure(report) {
+    var message = report.responseText.match(/<pre>([\s\S]*)<\/pre>/);
+    if (message) {
         var pre = document.createElement('pre');
-        pre.innerHTML = message;
-        this._display(pre, 'result');
-    }
-
-    this.displayBooleanResult = function(value, resultTitle) {
+        pre.innerHTML = message[1];
+        setResult(pre);
+    } else {
         var div = document.createElement('div');
-        var title = document.createElement('h4');
-        title.appendChild(document.createTextNode(resultTitle));
-        div.appendChild(title);
-        if (value)
-        	div.appendChild(document.createTextNode("TRUE"));
-        else
-        	div.appendChild(document.createTextNode("FALSE"));
-        this._display(div, 'result');
-        this._updateGraph(this._graph); // refresh links in new result
-    }
-
-    this.displayRDFResult = function(model, resultTitle) {
-        var div = document.createElement('div');
-        var title = document.createElement('h4');
-        title.appendChild(document.createTextNode(resultTitle));
-        div.appendChild(title);
-        div.appendChild(new RDFXMLFormatter(model));
-        this._display(div, 'result');
-        this._updateGraph(this._graph); // refresh links in new result - necessary for boolean?
-    }
-
-    this.displayJSONResult = function(json, resultTitle) {
-        var div = document.createElement('div');
-        var title = document.createElement('h4');
-        title.appendChild(document.createTextNode(resultTitle));
-        div.appendChild(title);
-        if (json.results.bindings.length == 0) {
-            var p = document.createElement('p');
-            p.className = 'empty';
-            p.appendChild(document.createTextNode('[no results]'));
-            div.appendChild(p);
-        } else {
-            div.appendChild(new SPARQLResultFormatter(json, this._namespaces).toDOM());
-            //jQuery('#queryresults').DataTable();
-        }
-        this._display(div, 'result');
-        this._updateGraph(this._graph); // refresh links in new result
-    }
-
-    this._display = function(node, whereID) {
-        var where = document.getElementById(whereID);
-        if (!where) {
-            alert('ID not found: ' + whereID);
-            return;
-        }
-        while (where.firstChild) {
-            where.removeChild(where.firstChild);
-        }
-        if (node == null) return;
-        where.appendChild(node);
-    }
-
-    this._selectedOutputMode = function() {
-        return document.getElementById('selectoutput').value;
-    }
-
-    this._getPrefixes = function() {
-        prefixes = '';
-        for (prefix in this._namespaces) {
-            var uri = this._namespaces[prefix];
-            prefixes = prefixes + 'PREFIX ' + prefix + ': <' + uri + '>\n';
-        }
-        return prefixes;
-    }
-
-    this._betterUnescape = function(s) {
-        return unescape(s.replace(/\+/g, ' '));
+        div.innerHTML = report.responseText;
+        setResult(div);
     }
 }
 
-
-/*
- * RDFXMLFormatter
- * 
- * maybe improve...
- */
-function RDFXMLFormatter(string) {
-	var pre = document.createElement('pre');
-	pre.appendChild(document.createTextNode(string));
-	return pre;
+function setResult(node) {
+    display(node, 'result');
 }
 
-/*
-===========================================================================
-SPARQLResultFormatter: Renders a SPARQL/JSON result set into an HTML table.
-
-var namespaces = { 'xsd': '', 'foaf': 'http://xmlns.com/foaf/0.1' };
-var formatter = new SPARQLResultFormatter(json, namespaces);
-var tableObject = formatter.toDOM();
-*/
-function SPARQLResultFormatter(json, namespaces) {
-    this._json = json;
-    this._variables = this._json.head.vars;
-    this._results = this._json.results.bindings;
-    this._namespaces = namespaces;
-
-    this.toDOM = function() {
-        var table = document.createElement('table');
-        table.id = 'queryresults'; 
-        table.className = "table table-striped table-bordered";
-        table.appendChild(this._createTableHeader());
-        var tbody = document.createElement('tbody');
-        for (var i = 0; i < this._results.length; i++) {
-            tbody.appendChild(this._createTableRow(this._results[i], i));
-        }
-        table.appendChild(tbody);
-        return table;
+function display(node, whereID) {
+    var where = document.getElementById(whereID);
+    if (!where) {
+        alert('ID not found: ' + whereID);
+        return;
     }
-
-    // TODO: Refactor; non-standard link makers should be passed into the class by the caller
-    this._getLinkMaker = function(varName) {
-        if (varName == 'property') {
-            return function(uri) { return '?property=' + encodeURIComponent(uri); };
-        } else if (varName == 'class') {
-            return function(uri) { return '?class=' + encodeURIComponent(uri); };
-        } else {
-            return function(uri) { return '?describe=' + encodeURIComponent(uri); };
-        }
+    while (where.firstChild) {
+        where.removeChild(where.firstChild);
     }
+    if (node == null) return;
+    where.appendChild(node);
+}
 
-    this._createTableHeader = function() {
-        var thead = document.createElement('thead');
+function displayResult(json, resultTitle) {
+
+    var div = document.createElement('div');
+    var title = document.createElement('h3');
+    title.appendChild(document.createTextNode(resultTitle));
+    div.appendChild(title);
+
+    if (json.results.bindings.length == 0) {
+        var p = document.createElement('p');
+        p.className = 'empty';
+        p.appendChild(document.createTextNode('[no results]'));
+        div.appendChild(p);
+    } else {
+        div.appendChild(jsonToHTML(json));
+    }
+    setResult(div);
+}
+
+function jsonToHTML(json) {
+
+    var table = document.createElement('table');
+    table.id = 'queryresults';
+    table.className = 'table table-striped table-bordered';
+
+    var thead = document.createElement('thead');
+    var tr = document.createElement('tr');
+
+    for (var i in json.head.vars) {
+        var th = document.createElement('th');
+        th.appendChild(document.createTextNode(json.head.vars[i]));
+        tr.appendChild(th);
+    }
+    thead.appendChild(tr);
+
+    var tbody = document.createElement('tbody');
+
+    for (var i in json.results.bindings) {
+        var binding = json.results.bindings[i];
         var tr = document.createElement('tr');
-        thead.appendChild(tr);
-        var hasNamedGraph = false;
-        for (var i = 0; i < this._variables.length; i++) {
-            var th = document.createElement('th');
-            th.appendChild(document.createTextNode(this._variables[i]));
-            tr.appendChild(th);
-            if (this._variables[i] == 'namedgraph') {
-                hasNamedGraph = true;
-            }
-        }
-        if (hasNamedGraph) {
-            var th = document.createElement('th');
-            th.appendChild(document.createTextNode(' '));
-            tr.insertBefore(th, tr.firstChild);
-        }
-        return thead;
-    }
 
-    this._createTableRow = function(binding, rowNumber) {
-        var tr = document.createElement('tr');
-        var namedGraph = null;
-        for (var i = 0; i < this._variables.length; i++) {
-            var varName = this._variables[i];
+        for (var v in json.head.vars) {
             td = document.createElement('td');
-            td.appendChild(this._formatNode(binding[varName], varName));
+            var varName = json.head.vars[v];
+            var node = binding[varName];
+
+            td.appendChild(nodeToHTML(node, function(uri) { return escape(uri); }));
+
             tr.appendChild(td);
-            if (this._variables[i] == 'namedgraph') {
-                namedGraph = binding[varName];
-            }
         }
-        if (namedGraph) {
-            var link = document.createElement('a');
-            link.href = 'javascript:snorql.switchToGraph(\'' + namedGraph.value + '\')';
-            link.appendChild(document.createTextNode('Switch'));
-            var td = document.createElement('td');
-            td.appendChild(link);
-            tr.insertBefore(td, tr.firstChild);
-        }
-        return tr;
+        tbody.appendChild(tr);
     }
+    table.appendChild(thead);
+    table.appendChild(tbody);
 
-    this._formatNode = function(node, varName) {
-        if (!node) {
-            return this._formatUnbound(node, varName);
+    return table;
+}
+
+function toQName(uri) {
+    for (nsURI in _namespaces) {
+        if (uri.indexOf(nsURI) == 0) {
+            return _namespaces[nsURI] + ':' + uri.substring(nsURI.length);
         }
-        if (node.type == 'uri') {
-            return this._formatURI(node, varName);
-        }
-        if (node.type == 'bnode') {
-            return this._formatBlankNode(node, varName);
-        }
-        if (node.type == 'literal') {
-            return this._formatPlainLiteral(node, varName);
-        }
-        if (node.type == 'typed-literal') {
-            return this._formatTypedLiteral(node, varName);
-        }
-        return document.createTextNode('???');
     }
+    return null;
+}
 
-    this._formatURI = function(node, varName) {
-        var span = document.createElement('span');
-        span.className = 'uri';
-        var a = document.createElement('a');
-        a.href = this._getLinkMaker(varName)(node.value);
-        a.title = '<' + node.value + '>';
-        a.className = 'graph-link';
-        var qname = this._toQName(node.value);
-        if (qname) {
-            a.appendChild(document.createTextNode(qname));
-            span.appendChild(a);
-        } else {
-            a.appendChild(document.createTextNode(node.value));
-            span.appendChild(document.createTextNode('<'));
-            span.appendChild(a);
-            span.appendChild(document.createTextNode('>'));
+function toQNameOrURI(uri) {
+    for (nsURI in _namespaces) {
+        if (uri.indexOf(nsURI) == 0) {
+            return _namespaces[nsURI] + ':' + uri.substring(nsURI.length);
         }
-        match = node.value.match(/^(https?|ftp|mailto|irc|gopher|news):/);
-        if (match) {
-            span.appendChild(document.createTextNode(' '));
-            var externalLink = document.createElement('a');
-            externalLink.href = node.value;
-            img = document.createElement('img');
-            img.src = 'assets/images/link.png';
-            img.alt = '[' + match[1] + ']';
-            img.title = 'Go to Web page';
-            externalLink.appendChild(img);
-            span.appendChild(externalLink);
-        }
-        return span;
     }
+    return '<' + uri + '>';
+}
 
-    this._formatPlainLiteral = function(node, varName) {
-        var text = '"' + node.value + '"';
-        if (node['xml:lang']) {
-            text += '@' + node['xml:lang'];
-        }
-        return document.createTextNode(text);
-    }
+var xsdNamespace = 'http://www.w3.org/2001/XMLSchema#';
+var numericXSDTypes = ['long', 'decimal', 'float', 'double', 'int', 'short', 'byte', 'integer',
+        'nonPositiveInteger', 'negativeInteger', 'nonNegativeInteger', 'positiveInteger',
+        'unsignedLong', 'unsignedInt', 'unsignedShort', 'unsignedByte'];
+for (i in numericXSDTypes) {
+    numericXSDTypes[i] =  xsdNamespace + numericXSDTypes[i];
+}
 
-    this._formatTypedLiteral = function(node, varName) {
-        var text = '"' + node.value + '"';
-        if (node.datatype) {
-            text += '^^' + this._toQNameOrURI(node.datatype);
-        }
-        if (this._isNumericXSDType(node.datatype)) {
-            var span = document.createElement('span');
-            span.title = text;
-            span.appendChild(document.createTextNode(node.value));
-            return span;
-        }
-        return document.createTextNode(text);
-    }
-
-    this._formatBlankNode = function(node, varName) {
-        return document.createTextNode('_:' + node.value);
-    }
-
-    this._formatUnbound = function(node, varName) {
+function nodeToHTML(node, linkMaker) {
+    if (!node) {
         var span = document.createElement('span');
         span.className = 'unbound';
         span.title = 'Unbound'
         span.appendChild(document.createTextNode('-'));
         return span;
     }
+    if (node.type == 'uri') {
+        var span = document.createElement('span');
+        span.className = 'uri';
+        var qname = toQName(node.value);
+        var a = document.createElement('a');
+        a.href = node.value;
+        a.target = "_blank";
 
-    this._toQName = function(uri) {
-        for (prefix in this._namespaces) {
-            var nsURI = this._namespaces[prefix];
-            if (uri.indexOf(nsURI) == 0) {
-                return prefix + ':' + uri.substring(nsURI.length);
+        if (qname) {
+            a.appendChild(document.createTextNode(qname));
+            span.appendChild(a);
+        } else {
+            a.appendChild(document.createTextNode(node.value));
+            span.appendChild(a);
+        }
+
+        return span;
+    }
+    if (node.type == 'bnode') {
+        return document.createTextNode('_:' + node.value);
+    }
+    if (node.type == 'literal') {
+        var text = '"' + node.value + '"';
+        if (node['xml:lang']) {
+            text += '@' + node['xml:lang'];
+        }
+        return document.createTextNode(text);
+    }
+    if (node.type == 'typed-literal') {
+
+        var text = '"' + node.value + '"';
+
+        if (node.datatype) {
+            text += '^^' + toQNameOrURI(node.datatype);
+        }
+
+        for (i in numericXSDTypes) {
+            if (numericXSDTypes[i] == node.datatype) {
+                var span = document.createElement('span');
+                span.title = text;
+                span.appendChild(document.createTextNode(node.value));
+                return span;
             }
         }
-        return null;
+        return document.createTextNode(text);
+    }
+    return document.createTextNode('???');
+}
+
+function exportResults(url, sparql, type, output) {
+
+    service = new SPARQL.Service(url);
+    service.setMethod('GET');
+    if (_defaultGraph != "") {
+        service.addDefaultGraph(_defaultGraph);
     }
 
-    this._toQNameOrURI = function(uri) {
-        var qName = this._toQName(uri);
-        return (qName == null) ? '<' + uri + '>' : qName;
+    if(type === "csv"){
+        service.setRequestHeader('Accept', 'application/sparql-results+json,*/*');
+        service.setOutput('json');
+    }else{
+        service.setRequestHeader('Accept', 'application/sparql-results+'+type+',*/*');
+        service.setOutput(type);
     }
 
-    this._isNumericXSDType = function(datatypeURI) {
-        for (i = 0; i < this._numericXSDTypes.length; i++) {
-            if (datatypeURI == this._xsdNamespace + this._numericXSDTypes[i]) {
-                return true;
+    service.query(sparql, {
+            success: function(json) { renderOutput(json, type); },
+            failure: onExportFailure
+    });
+}
+
+function renderOutput(results, type){
+
+    if(type === 'csv'){
+        exportCSV(results);
+    }else if(type === 'json'){
+
+        var download_link = document.createElement('a');
+        download_link.setAttribute('href', 'data:text/csv;charset=utf8,' + encodeURIComponent(JSON.stringify(results)));
+        download_link.setAttribute('download', "snorql-json-"+(new Date().getTime() / 1000)+".json");
+        download_link.click();
+
+    }else if(type === 'xml'){
+
+        var download_link = document.createElement('a');
+        download_link.setAttribute('href', 'data:text/csv;charset=utf8,' + encodeURIComponent(results));
+        download_link.setAttribute('download', "snorql-xml-"+(new Date().getTime() / 1000)+".xml");
+        download_link.click();
+    }
+}
+
+function exportCSV(json){
+
+    if (typeof json !== 'undefined') {
+
+        var csv = "";
+
+        for (var i in json.head.vars) {
+
+            csv += formatData(json.head.vars[i]);
+
+            if(i != json.head.vars.length){
+                csv += ',';
             }
         }
-        return false;
+
+        csv += "\n";
+
+        for (var i in json.results.bindings) {
+
+            var binding = json.results.bindings[i];
+
+            for (var v in json.head.vars) {
+
+                var varName = json.head.vars[v];
+                var node = binding[varName];
+
+                if (typeof node !== 'undefined') {
+                    csv += formatData(node.value);
+                }else{
+                    csv += '' ;
+                }
+
+                if(v != json.head.vars.length){
+                    csv += ',';
+                }
+
+            }
+            csv += "\n";
+        }
+
+        var download_link = document.createElement('a');
+        download_link.setAttribute('href', 'data:text/csv;charset=utf8,' + encodeURIComponent(csv));
+        download_link.setAttribute('download', "snorql-csv-"+(new Date().getTime() / 1000)+".csv");
+        download_link.click();
+
+    }else{
+        alert('Please execute a query fist then try to export');
     }
-    this._xsdNamespace = 'http://www.w3.org/2001/XMLSchema#';
-    this._numericXSDTypes = ['long', 'decimal', 'float', 'double', 'int',
-        'short', 'byte', 'integer', 'nonPositiveInteger', 'negativeInteger',
-        'nonNegativeInteger', 'positiveInteger', 'unsignedLong',
-        'unsignedInt', 'unsignedShort', 'unsignedByte'];
+}
+
+function formatData(input) {
+    // RFC4180
+    var regexp = new RegExp(/["]/g);
+    var output = input.replace(regexp, '""');
+    //HTML
+    var regexp = new RegExp(/\<[^\<]+\>/g);
+    var output = output.replace(regexp, "");
+    output = output.replace(/&nbsp;/gi,' '); //replace &nbsp;
+    if (output == "") return '';
+    return '"' + output.trim() + '"';
+}
+
+function onExportFailure(){
+    alert("Export failed");
 }

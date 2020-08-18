@@ -1,33 +1,16 @@
-function fetchExamples() {
-    var repo = jQuery("#examples-repo").val();
-    if(!repo || (!repo.includes("https://github.com") && !repo.includes("https://api.github.com"))){
-        alert("Please enter SPARQL examples Github repo URL!!");
-    }else{
-
-        var link = repo;
-
-        if(repo.includes("https://github.com")){
-            link = "https://api.github.com/repos/"+repo.substring(19)+"/contents";
-        }
-
-        jQuery.ajax({
-	        url: link,
-		    dataType: 'json',
-		    success:function(response){
-		        jQuery("#examples").html('');
-    	        response.forEach(e => {
-    	          if(e["name"].endsWith(".rq")){
-                    jQuery("#examples").append("<li class=\"list-group-item sparql-example\">"+e["name"]+"<p class=\"hide\">"+e["download_url"]+"</p></li>");
-    	          }
-    	        });
-		    }
-	    });
-    }
-}
 
 (function ($) {
 
 jQuery(document).ready(function() {
+
+        jQuery("#query-button").on("click",function(event){
+            event.preventDefault();
+
+            var query = editor.getDoc().getValue();
+            var queryText = getPrefixes() + query;
+            doQuery(jQuery("#endpoint").val(), query, function(json) { displayResult(json, "SPARQL results"); });
+
+		});
 
 		jQuery("#fetch").on("click",function(){
             fetchExamples();
@@ -44,13 +27,26 @@ jQuery(document).ready(function() {
 			  });
 		});
 
-        jQuery("#exportCSV").on("click",function(){
+        jQuery("#reset-button").on("click",function(){
+            editor.getDoc().setValue("");
+        });
 
-            if(jQuery("#queryresults").length){
-                jQuery("#queryresults").table2CSV();
-            }else{
-              alert("Try to export after getting query results, nothing to export for now!");
-            }
+        jQuery("#export-csv").on("click",function(){
+            var query = editor.getDoc().getValue();
+            var queryText = getPrefixes() + query;
+            exportResults(jQuery("#endpoint").val(), query, "csv");
+        });
+
+        jQuery("#export-json").on("click",function(){
+            var query = editor.getDoc().getValue();
+            var queryText = getPrefixes() + query;
+            exportResults(jQuery("#endpoint").val(), query, "json");
+        });
+
+        jQuery("#export-xml").on("click",function(){
+            var query = editor.getDoc().getValue();
+            var queryText = getPrefixes() + query;
+            exportResults(jQuery("#endpoint").val(), query, "xml");
         });
 } );
 })(jQuery);

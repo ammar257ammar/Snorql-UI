@@ -21,16 +21,13 @@
 	<script type="text/javascript" src="assets/codemirror/addon/edit/matchbrackets.js"></script>
 	<script type="text/javascript" src="assets/codemirror/sparql.js"></script>		
 	
-    <script type="text/javascript" src="assets/js/prototype.js"></script>
-    <script type="text/javascript" src="assets/js/scriptaculous/scriptaculous.js"></script>
     <script type="text/javascript" src="assets/js/sparql.js"></script>
     <script type="text/javascript" src="assets/js/namespaces.js"></script>
     <script type="text/javascript" src="assets/js/snorql.js"></script>
-	<script type="text/javascript" src="assets/js/table2CSV.js"></script>
 	<script type="text/javascript" src="assets/js/script.js"></script>
   </head>
 
-  <body onload="snorql.start()">
+  <body onload="start()">
  
 	<nav class="navbar navbar-default">
       <!-- <div class="container-fluid"> -->
@@ -40,15 +37,11 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
 		  <ul class="nav navbar-nav">
-			  <!-- <li class="active"><a href="#">Home</a></li>
-			  <li><a href="#">Page 1</a></li>
-			  <li><a href="#">Page 2</a></li>
-			  <li><a href="#">Page 3</a></li> -->
 		  </ul>	
           <form class="navbar-form navbar-right">
             <div class="input-group">
 				<span class="input-group-addon">SPARQL Endpoint</span>
-				<input size="50" class="form-control mr-sm-2" name="endpoint" id="endpoint" value="https://query.wikidata.org/sparql" onchange="changeEndpoint();" />		
+				<input size="50" class="form-control mr-sm-2" name="endpoint" id="endpoint" onchange="changeEndpoint();" />		
             </div>
           </form>
         </div><!--/.navbar-collapse -->
@@ -60,13 +53,6 @@
 		<div class="row">
 		
 			<div class="col-md-8">
-				<form id="queryform" action="#" method="get">
-					<input type="hidden" name="query" value="" id="query" />
-					<input type="hidden" name="ep" value="" id="ep" />
-					<input type="hidden" name="output" value="json" id="jsonoutput" disabled="disabled" />
-					<input type="hidden" name="stylesheet" value="" id="stylesheet" disabled="disabled" />
-					<input type="hidden" name="graph" value="" id="graph-uri" disabled="disabled" />
-				</form>
 				
 				<div class="row">
 					<div class="col-md-12">		
@@ -84,20 +70,11 @@
 				
 				<div class="row">
 					<div class="col-md-12">		
-						Results:
-						<select id="selectoutput" onchange="snorql.updateOutputMode()">
-						  <option selected="selected" value="browse">Browse</option>
-						  <option value="json">as JSON</option>
-						  <option value="xml">as XML</option>
-						  <option value="xslt">as XML+XSLT</option>
-						</select>
-						<span id="xsltcontainer"><span id="xsltinput">
-						  XSLT stylesheet URL:
-						  <input id="xsltstylesheet" type="text" value="assets/xml-to-html.xsl" size="30" />
-						</span></span>
-						<input type="button" class="btn btn-success" value="Query" onclick="snorql.submitQuery()" />
-						<input type="button" class="btn btn-danger" value="Reset" onclick="snorql.resetQuery()" />
-						<input type="button" class="btn btn-warning" value="Export CSV" id="exportCSV" />
+						<input id="query-button" type="button" class="btn btn-success" value="Query" />
+						<input id="reset-button" type="button" class="btn btn-danger" value="Reset" />
+						<input id="export-csv" type="button" class="btn btn-warning" value="Export CSV" />
+						<input id="export-json" type="button" class="btn btn-primary" value="Export JSON" />
+						<input id="export-xml" type="button" class="btn btn-info" value="Export XML" />
 					</div>
 				</div>
 				
