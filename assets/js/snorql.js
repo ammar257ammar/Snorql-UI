@@ -342,7 +342,7 @@ function exportCSV(json){
 
             csv += formatData(json.head.vars[i]);
 
-            if(i != json.head.vars.length){
+            if(i < json.head.vars.length-1){
                 csv += ',';
             }
         }
@@ -364,7 +364,7 @@ function exportCSV(json){
                     csv += '' ;
                 }
 
-                if(v != json.head.vars.length){
+                if(v < json.head.vars.length-1){
                     csv += ',';
                 }
 
