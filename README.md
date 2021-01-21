@@ -22,7 +22,7 @@ Live Demo of Snorql extended:  [Demo 1](https://wikipathways.github.io/snorql-ex
 
 - If you have the SPARQL queries directly inside the repo, then use the full the URL of the repo like the following:
 
-  https://github.com/ammar257ammar/snorql-extended-sparql-examples
+  [https://github.com/wikipathways/SPARQLQueries](https://github.com/wikipathways/SPARQLQueries)
 
 
 
