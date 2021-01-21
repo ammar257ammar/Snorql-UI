@@ -4,7 +4,7 @@ Simple SPARQL explorer based on the original idea of [kurtjx/SNORQL](https://git
 
 The purpose of this project is to develop a fully new UI implementation for Snorql that uses the latest web standards for HTML5, CSS3 and JQuery.
 
-Live Demo of Snorql extended:  https://ammar257ammar.github.io/snorql-extended
+Live Demo of Snorql extended:  [Demo 1](https://wikipathways.github.io/snorql-extended) 	 [Demo 2](https://ammar257ammar.github.io/snorql-extended)
 
 
 
