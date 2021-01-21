@@ -1,5 +1,5 @@
-var _endpoint = "https://query.wikidata.org/sparql";
-var _examples_repo = "https://api.github.com/repos/egonw/SARS-CoV-2-Queries/contents/sparql";
+var _endpoint = "http://sparql.wikipathways.org/sparql";
+var _examples_repo = "https://github.com/wikipathways/SPARQLQueries";
 var _defaultGraph = "";
 var _namespaces = snorql_namespacePrefixes;
 
