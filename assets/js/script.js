@@ -3,6 +3,23 @@
 
 jQuery(document).ready(function() {
 
+        var cookieDecision = getCookie('cookieDecision');
+
+        if (cookieDecision == "" || cookieDecision == "reject") {
+
+            $('#cookieModal').modal();
+
+            $('#cookieModal button.btn-secondary').on('click', function (e) {
+                setCookie("cookieDecision", "reject");
+                window.location.href = "http://wikipathways.org";
+            });
+
+            $("#cookieModal button.btn-primary").on('click', function(){
+                setCookie("cookieDecision", "accept");
+                $('#cookieModal').modal('hide');
+            });
+        }
+        
         jQuery("#query-button").on("click",function(event){
             event.preventDefault();
 

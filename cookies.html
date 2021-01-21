@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Snorql: A SPARQL Explorer - Extended Edition">
+    <meta name="author" content="Ammar Ammar (https://github.com/ammar257ammar)">
+	<link rel="icon" href="assets/images/favicon.ico">
+
+    <title>Snorql: A SPARQL Explorer - Extended Edition</title>
+	<link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" href="assets/codemirror/lib/codemirror.css" />
+	<link rel="stylesheet" type="text/css" href="assets/css/bootstrap-treeview.min.css" />
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css" />
+
+	<script type="text/javascript" src="assets/js/jquery.min.js"></script>
+    <script type="text/javascript" src="assets/js/bootstrap.min.js"></script>
+	
+    <script type="text/javascript" src="assets/codemirror/lib/codemirror.js"></script>	
+	<script type="text/javascript" src="assets/codemirror/mode/javascript/javascript.js"></script>
+	<script type="text/javascript" src="assets/codemirror/addon/selection/active-line.js"></script>
+	<script type="text/javascript" src="assets/codemirror/addon/edit/matchbrackets.js"></script>
+	<script type="text/javascript" src="assets/codemirror/sparql.js"></script>		
+
+	<script type="text/javascript" src="assets/js/namespaces.js"></script>	
+	<script type="text/javascript" src="assets/js/snorql.js"></script>
+	
+  </head>
+
+  <body>
+ 
+	<nav class="navbar navbar-default">
+      <!-- <div class="container-fluid"> -->
+      <div class="container">
+        <div class="navbar-header">
+		  <a class="navbar-brand" id="index-page" href="">Snorql: A SPARQL Explorer - Extended Edition</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+		  <ul class="nav navbar-nav">
+		  </ul>	
+          
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>
+	
+	<div class="snorql container">
+	
+		<div class="row">
+		
+			<div class="col-md-12">
+			
+				<h1>Cookie Policy for Snorql ( A SPARQL Explorer - Extended Edition)</h1>
+				<hr/>
+				<p>This is the Cookie Policy for Snorql ( A SPARQL Explorer - Extended Edition), accessible from <a href="https://ammar257ammar.github.io/snorql-extended">https://ammar257ammar.github.io/snorql-extended</a></p>
+
+				<p><strong>What Are Cookies</strong></p>
+
+				<p>As is common practice with almost all professional websites this site uses cookies, which are tiny files that are downloaded to your computer, to improve your experience. This page describes what information they gather, how we use it and why we sometimes need to store these cookies. We will also share how you can prevent these cookies from being stored however this may downgrade or 'break' certain elements of the sites functionality.</p>
+
+				<p>For more general information on cookies, please read <a href="https://www.cookieconsent.com/what-are-cookies/">"What Are Cookies"</a></p>
+
+				<p><strong>How We Use Cookies</strong></p>
+
+				<p>We use cookies for the reasons detailed below. Unfortunately in most cases there are no industry standard options for disabling cookies without completely disabling the functionality and features they add to this site. It is recommended that you leave on all cookies if you are not sure whether you need them or not in case they are used to provide a service that you use.</p>
+
+				<p><strong>Disabling Cookies</strong></p>
+
+				<p>You can prevent the setting of cookies by adjusting the settings on your browser (see your browser Help for how to do this). Be aware that disabling cookies will affect the functionality of this and many other websites that you visit. Disabling cookies will usually result in also disabling certain functionality and features of the this site. Therefore it is recommended that you do not disable cookies.</p>
+				
+				<p><strong>The Cookies We Set</strong></p>
+
+				<ul>
+
+					<li>
+						<p>Site preferences cookies</p>
+						<p>In order to provide you with a great experience on this site, we provide the functionality to set your preferences for how this site runs when you use it. This specifically means :</p>
+						<ul>
+							<li>Setting the SPARQL endpoint you want to execute your queries against (cookie name: "endpoint"). </li>
+							<li>Setting the Github repository that you want to load examples queries from (cookie name: "examplesrepo"). </li>
+							<li>Saving the cookie policy decision when the user visits next time (cookie name: "cookieDecision"). </li>
+						</ul></br>
+						<p>In order to remember your preferences we need to set cookies so that this information can be called whenever you interact with a page is affected by your preferences.</p>
+					</li>
+
+				</ul>
+
+				<p><strong>Third Party Cookies</strong></p>
+
+				<p>We do not use any third-party cookies in our site.</p>
+
+
+				<p><strong>More Information</strong></p>
+
+				<p>Hopefully that has clarified things for you and as was previously mentioned if there is something that you aren't sure whether you need or not it's usually safer to leave cookies enabled in case it does interact with one of the features you use on our site.</p>
+
+				<p>However if you are still looking for more information then you can submit an issue to <a href="https://github.com/ammar257ammar/snorql-extended">Snorql - Extended Edition Github repository</a>.</p>
+				
+			</div>
+
+		</div>
+	</div>
+	
+	<div class="container">
+	
+		<div class="row">
+			<div class="col-md-12">
+				<div class="pre-scrollable" id="result"><span></span></div>
+			</div>
+		</div>
+	</div>
+	
+	<footer class="footer navbar-fixed-bottom">
+	  <div class="container">
+		<p>Powered by <a id="poweredby" href="#">Snorql</a> - <a href="cookies.html">Cookie Policy</a></p>
+	  </div>
+	</footer>
+	<script type="text/javascript">
+		$('#poweredby').text( _poweredByLabel);
+	</script>
+  </body>
+</html>
