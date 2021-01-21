@@ -16,16 +16,27 @@ jQuery(document).ready(function() {
             fetchExamples();
 		});
 
-		jQuery("#examples").on("click","li",function(e){
+		//---------------- Search funcionality starts ------------------------
 
-			  jQuery.ajax({
-				url: jQuery(this).children().first().html(),
-				dataType: 'html',
-				success:function(response){
-				  editor.getDoc().setValue(response);
-				}
-			  });
-		});
+        var search = function(e) {
+          var pattern = $('#input-search').val();
+          var options = {
+            ignoreCase: true,
+            exactMatch: false,
+            revealResults: true
+          };
+          var results = $('#examples').treeview('search', [ pattern, options ]);
+        }
+
+        $('#btn-search').on('click', search);
+
+        $('#btn-clear-search').on('click', function (e) {
+          $('#examples').treeview('clearSearch');
+          $('#input-search').val('');
+          $('#search-output').html('');
+        });
+
+        //---------------- Search funcionality ends ------------------------
 
         jQuery("#reset-button").on("click",function(){
             editor.getDoc().setValue("");

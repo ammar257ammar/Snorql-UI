@@ -6,7 +6,7 @@ var _namespaces = snorql_namespacePrefixes;
 var _poweredByLink = 'https://github.com/ammar257ammar/snorql-extended';
 var _poweredByLabel = 'Snorql - Extended Edition';
 
-function setCookie(cname, cvalue) {
+function setCookie(cname, cvalue){
     var d = new Date();
     d.setTime(d.getTime() + (365*24*60*60*1000));
     var expires = "expires="+ d.toUTCString();
@@ -48,30 +48,156 @@ function getPrefixes(){
     return prefixes;
 }
 
+var tree = [];
+
+function mainAjax(link, repo){
+
+    var pager = jQuery.ajax({
+                    url: link,
+                    dataType: 'json'
+                });
+
+    pager.done(function(results){
+
+        results = results["tree"];
+
+        var i;
+        for(i = 0; i < results.length; i++){
+
+            var segments = results[i]["path"].split("/");
+
+            var path = results[i]["path"];
+
+            if(path.slice(path.length - 2) == "rq"){
+
+                var node = new Object();
+
+                if(segments.length == 1){
+
+                    node.text = segments[0];
+                    node.href = "https://raw.githubusercontent.com/"+repo+"/master/"+path;
+                    node.icon = 'glyphicon glyphicon-file';
+
+                    tree.push(node);
+
+                }else if(segments.length == 2){
+
+                    var index = getIndexFromTree(segments[0], tree);
+
+                    if(index == null){
+                        var folder_node = new Object();
+                        folder_node.text = segments[0];
+                        folder_node.nodes = new Array();
+                        folder_node.href = "#";
+
+                        tree.push(folder_node);
+
+                        index = getIndexFromTree(segments[0], tree);
+                    }
+
+                    node.text = segments[1];
+                    node.href = "https://raw.githubusercontent.com/"+repo+"/master/"+path;
+                    node.icon = 'glyphicon glyphicon-file';
+
+                    tree[index].nodes.push(node);
+
+                }else if(segments.length == 3){
+
+                    var index = getIndexFromTree(segments[0], tree);
+
+                    if(index == null){
+                        var folder_node = new Object();
+                        folder_node.text = segments[0];
+                        folder_node.nodes = new Array();
+                        folder_node.href = "#";
+
+                        tree.push(folder_node);
+
+                        index = getIndexFromTree(segments[0], tree);
+                    }
+
+                    var index2 = getIndexFromTree(segments[1], tree[index].nodes);
+
+                    if(index2 == null){
+                        var folder_node = new Object();
+                        folder_node.text = segments[1];
+                        folder_node.nodes = new Array();
+                        folder_node.href = "#";
+
+                        tree[index].nodes.push(folder_node);
+
+                        index2 = getIndexFromTree(segments[1], tree[index].nodes);
+                    }
+
+                    if(segments[2].length > 20){
+                        segments[2] = segments[2].substring(0,20)+"..";
+                    }
+                    node.text = segments[2];
+                    node.href = "https://raw.githubusercontent.com/"+repo+"/master/"+path;
+                    node.icon = 'glyphicon glyphicon-file';
+
+                    tree[index].nodes[index2].nodes.push(node);
+                }
+            }
+        }
+    });
+
+    return pager
+}
+
+function getIndexFromTree(segment, nodes){
+
+    var i;
+
+    for(i = 0; i < nodes.length; i++){
+        if(nodes[i].text == segment){
+            return i;
+        }
+    }
+
+    return null;
+}
+
 function fetchExamples() {
     var repo = jQuery("#examples-repo").val();
     if(!repo || (!repo.includes("https://github.com") && !repo.includes("https://api.github.com"))){
         alert("Please enter SPARQL examples Github repo URL!!");
     }else{
 
+        tree = [];
         var link = repo;
 
         if(repo.includes("https://github.com")){
-            link = "https://api.github.com/repos/"+repo.substring(19)+"/contents";
-        }
 
-        jQuery.ajax({
-	        url: link,
-		    dataType: 'json',
-		    success:function(response){
-		        jQuery("#examples").html('');
-    	        response.forEach(e => {
-    	          if(e["name"].endsWith(".rq")){
-                    jQuery("#examples").append("<li class=\"list-group-item sparql-example\">"+e["name"]+"<p class=\"hide\">"+e["download_url"]+"</p></li>");
-    	          }
-    	        });
-		    }
-	    });
+            link = "https://api.github.com/repos/"+repo.substring(19)+"/git/trees/master?recursive=1";
+
+            var pager = mainAjax(link, repo.substring(19));
+
+            $.when(pager).then(function(){
+
+                $('#examples').treeview({
+                    data: tree,
+                    levels: 0,
+                    expandIcon: 'glyphicon glyphicon-folder-close',
+                    collapseIcon: 'glyphicon glyphicon-folder-open',
+                    //showTags: true,
+                    onNodeSelected: function(event, node) {
+
+                        if(node.href.includes("https://raw.githubusercontent.com")){
+                            jQuery.ajax({
+                				url: node.href,
+                				dataType: 'html',
+                				success:function(response){
+                				  editor.getDoc().setValue(response);
+                				}
+                			});
+                        }else{
+                          $('#examples').treeview('toggleNodeExpanded', [ node.nodeId, { silent: true } ]);
+                        }
+                    }
+                });
+            });
+        }
     }
 }
 

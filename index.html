@@ -10,6 +10,7 @@
     <title>Snorql: A SPARQL Explorer - Extended Edition</title>
 	<link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css" />
 	<link rel="stylesheet" type="text/css" href="assets/codemirror/lib/codemirror.css" />
+	<link rel="stylesheet" type="text/css" href="assets/css/bootstrap-treeview.min.css" />
     <link rel="stylesheet" type="text/css" href="assets/css/style.css" />
 
 	<script type="text/javascript" src="assets/js/jquery.min.js"></script>
@@ -21,6 +22,7 @@
 	<script type="text/javascript" src="assets/codemirror/addon/edit/matchbrackets.js"></script>
 	<script type="text/javascript" src="assets/codemirror/sparql.js"></script>		
 	
+	<script type="text/javascript" src="assets/js/bootstrap-treeview.min.js"></script>
     <script type="text/javascript" src="assets/js/sparql.js"></script>
     <script type="text/javascript" src="assets/js/namespaces.js"></script>
     <script type="text/javascript" src="assets/js/snorql.js"></script>
@@ -92,7 +94,16 @@
 						</div>
 				  </div>
 				  <div class="panel-body">
-					<ul class="list-group" id="examples"></ul>
+						<!-- <form> -->
+						<div class="form-group">
+						  <label for="input-search" class="sr-only">Search Tree:</label>
+						  <input type="input" class="form-control" id="input-search" placeholder="Type part of the query file name to search for..." value="">
+						</div>
+						<button type="button" class="btn btn-success" id="btn-search">Search</button>
+						<button type="button" class="btn btn-default" id="btn-clear-search">Clear</button>
+						<!-- </form> -->
+						<hr/>
+						<div class="list-group" id="examples"></div>
 				  </div>
 				</div>
 			</div>

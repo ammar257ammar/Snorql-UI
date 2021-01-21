@@ -33,7 +33,7 @@ footer p{
 }
 
 .panel-body{
-  max-height: 300px;
+  max-height: 450px;
   overflow: scroll;
 }
 
