@@ -160,7 +160,12 @@ function getIndexFromTree(segment, nodes){
 
 function fetchExamples() {
     var repo = jQuery("#examples-repo").val();
-    if(!repo || (!repo.includes("https://github.com") && !repo.includes("https://api.github.com"))){
+
+    if(repo.charAt(repo.length-1) == "/"){
+        repo = repo.substring(0, repo.length - 1);
+    }
+
+    if(!repo || (!repo.includes("https://github.com"))){
         alert("Please enter SPARQL examples Github repo URL!!");
     }else{
 
