@@ -41,3 +41,8 @@ footer p{
     max-height: 550px;
     overflow-y: scroll;
 }
+
+#permalink-url{
+  font-size: 24px;
+  text-align: center;
+}

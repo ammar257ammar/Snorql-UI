@@ -77,6 +77,7 @@
 						<input id="export-csv" type="button" class="btn btn-warning" value="Export CSV" />
 						<input id="export-json" type="button" class="btn btn-primary" value="Export JSON" />
 						<input id="export-xml" type="button" class="btn btn-info" value="Export XML" />
+						<input id="generate-permalink" type="button" class="btn btn-secondary" value="Get Permalink" />
 					</div>
 				</div>
 				
@@ -139,6 +140,23 @@
 		  <div class="modal-footer">
 			<button type="button" class="btn btn-primary">Accept</button>
 			<button type="button" class="btn btn-secondary">Reject</button>
+		  </div>
+		</div>
+	  </div>
+	</div>
+	
+	<div id="permalinkModal" class="modal" tabindex="-1" role="dialog">
+	  <div class="modal-dialog" role="document">
+		<div class="modal-content">
+		  <div class="modal-header">
+			<h3 class="modal-title text-primary">Permanent Link for current query</h3>
+		  </div>
+		  <div class="modal-body">
+			
+			<p id="permalink-url"></p>
+			
+		  </div>
+		  <div class="modal-footer">
 		  </div>
 		</div>
 	  </div>
