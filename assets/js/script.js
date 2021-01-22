@@ -110,7 +110,6 @@ jQuery(document).ready(function() {
 
             var url = window.location.href.split('?')[0] + query;
 
-            url = "http://sparql.wikipathways.org"+query;
             var accessToken = "b0021fe4839aefbc4e7967b3578443d9ea6e89bf";
 
             var params = {
