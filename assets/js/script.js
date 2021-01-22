@@ -31,6 +31,7 @@ jQuery(document).ready(function() {
 
 		jQuery("#fetch").on("click",function(){
             fetchExamples();
+            fetchExamples("-fs");
 		});
 
         //---------------- Populate query from URL (if available) -----------------------
@@ -72,12 +73,32 @@ jQuery(document).ready(function() {
         $('#btn-clear-search').on('click', function (e) {
           $('#examples').treeview('clearSearch');
           $('#input-search').val('');
-          $('#search-output').html('');
         });
 
         //---------------- Search funcionality ends ------------------------
 
-        jQuery("#reset-button").on("click",function(){
+        //---------------- Search funcionality Fullscreen starts ------------------------
+
+        var searchfs = function(e) {
+          var pattern = $('#input-search-fs').val();
+          var options = {
+            ignoreCase: true,
+            exactMatch: false,
+            revealResults: true
+          };
+          var results = $('#examples-fs').treeview('search', [ pattern, options ]);
+        }
+
+        $('#btn-search-fs').on('click', searchfs);
+
+        $('#btn-clear-search-fs').on('click', function (e) {
+          $('#examples-fs').treeview('clearSearch');
+          $('#input-search-fs').val('');
+        });
+
+        //---------------- Search funcionality Fullscreen ends ------------------------
+
+		jQuery("#reset-button").on("click",function(){
             editor.getDoc().setValue("");
         });
 
@@ -99,6 +120,20 @@ jQuery(document).ready(function() {
             exportResults(jQuery("#endpoint").val(), query, "xml");
         });
 
+        jQuery("#enter-fullscreen").on("click",function(){
+            document.getElementById("fullscreen-navbar").style.display="block";
+            editor.setOption("fullScreen", !editor.getOption("fullScreen"));
+        });
+
+        jQuery("#exit-fullscreen").on("click",function(){
+            document.getElementById("fullscreen-navbar").style.display="none";
+            if (editor.getOption("fullScreen")) editor.setOption("fullScreen", false);
+        });
+
+        jQuery("#examples-fullscreen").on("click",function(){
+            $('#examplesModal').modal();
+        });
+
         jQuery("#generate-permalink").on("click",function(e){
 
             e.preventDefault();
@@ -116,7 +151,6 @@ jQuery(document).ready(function() {
                 "long_url" : url
             };
 
-            console.log(url);
             $.ajax({
                 url: "https://api-ssl.bitly.com/v4/shorten",
                 cache: false,
@@ -128,7 +162,6 @@ jQuery(document).ready(function() {
                 },
                 data: JSON.stringify(params)
             }).done(function(data) {
-                console.log(data.link);
                 $('#permalink-url').html("<a href=\""+data.link+"\" target=\"_blank\">"+data.link+"</a>");
                 $('#permalinkModal').modal();
             }).fail(function(data) {

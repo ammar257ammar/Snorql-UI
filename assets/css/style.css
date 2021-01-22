@@ -46,3 +46,37 @@ footer p{
   font-size: 24px;
   text-align: center;
 }
+
+#fullscreen-navbar {
+  display: none;
+  background-color: #f5f5f5;
+}
+
+#fullscreen-navbar .container {
+  text-align: center;
+}
+
+#fullscreen-navbar .row {
+  margin-bottom: 0px;
+}
+
+#fullscreen-navbar input {
+  margin-top:5px;
+  margin-bottom: 5px;
+}
+
+.CodeMirror-fullscreen {
+  top: 44px;
+}
+
+.btn-dark {
+    color: #fff;
+    background-color: #555;
+    border-color: #555;
+}
+
+.btn-dark:hover {
+    color: #fff;
+    background-color: #aaa;
+    border-color: #666;
+}

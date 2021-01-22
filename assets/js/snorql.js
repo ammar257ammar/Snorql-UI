@@ -158,7 +158,7 @@ function getIndexFromTree(segment, nodes){
     return null;
 }
 
-function fetchExamples() {
+function fetchExamples(suffix="") {
     var repo = jQuery("#examples-repo").val();
 
     if(repo.charAt(repo.length-1) == "/"){
@@ -180,7 +180,7 @@ function fetchExamples() {
 
             $.when(pager).then(function(){
 
-                $('#examples').treeview({
+                $('#examples'+suffix).treeview({
                     data: tree,
                     levels: 0,
                     expandIcon: 'glyphicon glyphicon-folder-close',
@@ -197,7 +197,7 @@ function fetchExamples() {
                 				}
                 			});
                         }else{
-                          $('#examples').treeview('toggleNodeExpanded', [ node.nodeId, { silent: true } ]);
+                          $('#examples'+suffix).treeview('toggleNodeExpanded', [ node.nodeId, { silent: true } ]);
                         }
                     }
                 });
@@ -225,6 +225,7 @@ function start(){
     }
 
     fetchExamples();
+    fetchExamples("-fs");
 
     $('#poweredby').attr('href', _poweredByLink);
     $('#poweredby').text( _poweredByLabel);

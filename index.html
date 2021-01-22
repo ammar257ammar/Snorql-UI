@@ -10,6 +10,7 @@
     <title>Snorql: A SPARQL Explorer - Extended Edition</title>
 	<link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css" />
 	<link rel="stylesheet" type="text/css" href="assets/codemirror/lib/codemirror.css" />
+	<link rel="stylesheet" type="text/css" href="assets/codemirror/addon/display/fullScreen.css" />
 	<link rel="stylesheet" type="text/css" href="assets/css/bootstrap-treeview.min.css" />
     <link rel="stylesheet" type="text/css" href="assets/css/style.css" />
 
@@ -20,6 +21,7 @@
 	<script type="text/javascript" src="assets/codemirror/mode/javascript/javascript.js"></script>
 	<script type="text/javascript" src="assets/codemirror/addon/selection/active-line.js"></script>
 	<script type="text/javascript" src="assets/codemirror/addon/edit/matchbrackets.js"></script>
+	<script type="text/javascript" src="assets/codemirror/addon/display/fullScreen.js"></script>
 	<script type="text/javascript" src="assets/codemirror/sparql.js"></script>		
 	
 	<script type="text/javascript" src="assets/js/bootstrap-treeview.min.js"></script>
@@ -78,6 +80,7 @@
 						<input id="export-json" type="button" class="btn btn-primary" value="Export JSON" />
 						<input id="export-xml" type="button" class="btn btn-info" value="Export XML" />
 						<input id="generate-permalink" type="button" class="btn btn-secondary" value="Get Permalink" />
+						<input id="enter-fullscreen" type="button" class="btn btn-dark" value="Fullscreen Mode" />
 					</div>
 				</div>
 				
@@ -94,7 +97,7 @@
 							</div>
 						</div>
 				  </div>
-				  <div class="panel-body">
+				  <div id="examplesMainBody" class="panel-body">
 						<!-- <form> -->
 						<div class="form-group">
 						  <label for="input-search" class="sr-only">Search Tree:</label>
@@ -125,6 +128,17 @@
 		<p>Powered by <a id="poweredby" href="#">Snorql</a> - <a href="cookies.html">Cookie Policy</a></p>
 	  </div>
 	</footer>
+
+	<div id="fullscreen-navbar" class="navbar-fixed-top">
+	  <div class="container">
+		<div class="row">
+			<div class="col-md-12">		
+				<input id="exit-fullscreen" type="button" class="btn btn-danger" value="Exit Fullscreen" />
+				<input id="examples-fullscreen" type="button" class="btn btn-primary" value="Examples" />
+			</div>
+		</div>
+	  </div>
+	</div>
 	
 	<div id="cookieModal" class="modal" tabindex="-1" role="dialog">
 	  <div class="modal-dialog" role="document">
@@ -155,6 +169,30 @@
 			
 			<p id="permalink-url"></p>
 			
+		  </div>
+		  <div class="modal-footer">
+		  </div>
+		</div>
+	  </div>
+	</div>
+	
+	<div id="examplesModal" class="modal" tabindex="-1" role="dialog">
+	  <div class="modal-dialog" role="document">
+		<div class="modal-content">
+		  <div class="modal-header">
+			<h3 class="modal-title text-primary">SPARQL Examples</h3>
+		  </div>
+		  <div id="examplesModalBody" class="modal-body">
+			<!-- <form> -->
+			<div class="form-group">
+			  <label for="input-search" class="sr-only">Search Tree:</label>
+			  <input type="input" class="form-control" id="input-search-fs" placeholder="Type part of the query file name to search for..." value="">
+			</div>
+			<button type="button" class="btn btn-success" id="btn-search-fs">Search</button>
+			<button type="button" class="btn btn-default" id="btn-clear-search-fs">Clear</button>
+			<!-- </form> -->
+			<hr/>
+			<div class="list-group" id="examples-fs"></div> 
 		  </div>
 		  <div class="modal-footer">
 		  </div>
