@@ -56,7 +56,7 @@ function mainAjax(link, repo){
                     url: link,
                     dataType: 'json'
                 });
-
+                   
     pager.done(function(results){
 
         results = results["tree"];
@@ -285,8 +285,14 @@ function display(node, whereID) {
 function displayResult(json, resultTitle) {
 
     var div = document.createElement('div');
+
+    var resCount = document.createElement("small");
+    resCount.classList.add("text-muted");
+    resCount.appendChild(document.createTextNode(" ("+json.results.bindings.length+" results)"));
+
     var title = document.createElement('h3');
     title.appendChild(document.createTextNode(resultTitle));
+    title.appendChild(resCount);
     div.appendChild(title);
 
     if (json.results.bindings.length == 0) {
