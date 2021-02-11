@@ -6,6 +6,8 @@ var _namespaces = snorql_namespacePrefixes;
 var _poweredByLink = 'https://github.com/ammar257ammar/snorql-extended';
 var _poweredByLabel = 'Snorql - Extended Edition';
 
+var _showLiteralType = false;
+
 function setCookie(cname, cvalue){
     var d = new Date();
     d.setTime(d.getTime() + (365*24*60*60*1000));
@@ -400,31 +402,40 @@ function nodeToHTML(node, linkMaker) {
     if (node.type == 'bnode') {
         return document.createTextNode('_:' + node.value);
     }
-    if (node.type == 'literal') {
-        var text = '"' + node.value + '"';
-        if (node['xml:lang']) {
-            text += '@' + node['xml:lang'];
-        }
-        return document.createTextNode(text);
-    }
-    if (node.type == 'typed-literal') {
 
-        var text = '"' + node.value + '"';
+    if(_showLiteralType){
 
-        if (node.datatype) {
-            text += '^^' + toQNameOrURI(node.datatype);
-        }
-
-        for (i in numericXSDTypes) {
-            if (numericXSDTypes[i] == node.datatype) {
-                var span = document.createElement('span');
-                span.title = text;
-                span.appendChild(document.createTextNode(node.value));
-                return span;
+        if (node.type == 'literal') {
+            var text = '"' + node.value + '"';
+            if (node['xml:lang']) {
+                text += '@' + node['xml:lang'];
             }
+            return document.createTextNode(text);
         }
-        return document.createTextNode(text);
+        
+        if (node.type == 'typed-literal') {
+
+            var text = '"' + node.value + '"';
+
+            if (node.datatype) {
+                text += '^^' + toQNameOrURI(node.datatype);
+            }
+
+            for (i in numericXSDTypes) {
+                if (numericXSDTypes[i] == node.datatype) {
+                    var span = document.createElement('span');
+                    span.title = text;
+                    span.appendChild(document.createTextNode(node.value));
+                    return span;
+                }
+            }
+            return document.createTextNode(text);
+        }
+
+    }else{
+        return document.createTextNode(node.value);
     }
+
     return document.createTextNode('???');
 }
 
