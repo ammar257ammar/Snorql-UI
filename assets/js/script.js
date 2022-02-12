@@ -156,7 +156,7 @@ jQuery(document).ready(function() {
             var accessToken = "b0021fe4839aefbc4e7967b3578443d9ea6e89bf";
 
             var params = {
-                "long_url" : url
+                "long_url" : url.trim()
             };
 
             $.ajax({
