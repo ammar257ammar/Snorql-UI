@@ -16,13 +16,9 @@ jQuery(document).ready(function() {
 		
 		if(pathQueryIndex != -1){
 		  var newPath = window.location.href.substring(0,pathQueryIndex)
-		  
-		  if(newPath.endsWith("/")){
-		    newPath = newPath.slice(0,-1)
-		  }
-		  window.location.href = newPath +"/cookies.html";   	
+		  window.location.href = newPath.endsWith("/") ? newPath.slice(0,-1) +"/cookies.html" : newPath +"/cookies.html";
 		}else{
-		  window.location.href = path.endsWith("/") ? path.slice(0,-1) +"/cookies.html" : path.slice(0,-1) +"/cookies.html";	
+		  window.location.href = path.endsWith("/") ? path.slice(0,-1) +"/cookies.html" : path +"/cookies.html";	
 		}
             });
 
