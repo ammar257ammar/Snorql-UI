@@ -148,6 +148,7 @@ jQuery(document).ready(function() {
 
             var query = editor.getDoc().getValue();
             var queryText = getPrefixes() + query;
+	    query = query.trim()
 
             query = "?q="+encodeURIComponent(query);
 
