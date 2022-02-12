@@ -11,7 +11,7 @@ jQuery(document).ready(function() {
 
             $('#cookieModal button.btn-secondary').on('click', function (e) {
                 setCookie("cookieDecision", "reject");
-                window.location.href = "https://google.com";
+                window.location.href = "/cookies.html";
             });
 
             $("#cookieModal button.btn-primary").on('click', function(){
