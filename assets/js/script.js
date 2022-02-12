@@ -11,7 +11,19 @@ jQuery(document).ready(function() {
 
             $('#cookieModal button.btn-secondary').on('click', function (e) {
                 setCookie("cookieDecision", "reject");
-                window.location.href = "/cookies.html";
+		var pathQueryIndex = window.location.href.indexOf("?")
+		var path = window.location.href
+		
+		if(pathQueryIndex != -1){
+		  var newPath = window.location.href.substring(0,pathQueryIndex)
+		  
+		  if(newPath.endsWith("/")){
+		    newPath = newPath.slice(0,-1)
+		  }
+		  window.location.href = newPath +"/cookies.html";   	
+		}else{
+		  window.location.href = path.endsWith("/") ? path.slice(0,-1) +"/cookies.html" : path.slice(0,-1) +"/cookies.html";	
+		}
             });
 
             $("#cookieModal button.btn-primary").on('click', function(){
