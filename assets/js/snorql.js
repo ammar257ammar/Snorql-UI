@@ -335,6 +335,10 @@ function jsonToHTML(json) {
             var varName = json.head.vars[v];
             var node = binding[varName];
 
+            if(node != null){
+                node.head = varName;
+            }
+
             td.appendChild(nodeToHTML(node, function(uri) { return escape(uri); }));
 
             tr.appendChild(td);
@@ -382,22 +386,39 @@ function nodeToHTML(node, linkMaker) {
         return span;
     }
     if (node.type == 'uri') {
-        var span = document.createElement('span');
-        span.className = 'uri';
-        var qname = toQName(node.value);
-        var a = document.createElement('a');
-        a.href = node.value;
-        a.target = "_blank";
 
-        if (qname) {
-            a.appendChild(document.createTextNode(qname));
-            span.appendChild(a);
-        } else {
-            a.appendChild(document.createTextNode(node.value));
-            span.appendChild(a);
+        if(node.value.endsWith(".svg")){
+
+            text = `
+            <a target="_blank" href="`+node.value+`">
+                <svg width="200" height="150">
+                    <image xlink:href="`+node.value+`" src="assets/images/noimage.png" width="200" height="150"/>
+                </svg>
+            </a>
+            `;
+            var template = document.createElement('template');
+            template.innerHTML = text.trim();
+            return template.content.firstChild;
+
+        }else{
+
+            var span = document.createElement('span');
+            span.className = 'uri';
+            var qname = toQName(node.value);
+            var a = document.createElement('a');
+            a.href = node.value;
+            a.target = "_blank";
+
+            if (qname) {
+                a.appendChild(document.createTextNode(qname));
+                span.appendChild(a);
+            } else {
+                a.appendChild(document.createTextNode(node.value));
+                span.appendChild(a);
+            }
+
+            return span;
         }
-
-        return span;
     }
     if (node.type == 'bnode') {
         return document.createTextNode('_:' + node.value);
@@ -433,7 +454,24 @@ function nodeToHTML(node, linkMaker) {
         }
 
     }else{
-        return document.createTextNode(node.value);
+        
+        if(node.head == "smilesDepict"){
+
+            var depictUrl = "https://www.simolecule.com/cdkdepict/depict/bow/svg?smi="+encodeURIComponent(node.value)+"&zoom=2.0&annotate=none&bgcolor=transparent";
+
+            text = `
+                <a target="_blank" href="`+depictUrl+`">
+                    <img src="`+depictUrl+`" width="200" height="150" onerror="this.onerror=null;this.src='assets/images/noimage.png';" alt="SMILES depiction" />
+                </a>
+            `;
+            var template = document.createElement('template');
+            template.innerHTML = text.trim();
+            return template.content.firstChild;
+
+
+        }else{
+            return document.createTextNode(node.value);
+        }
     }
 
     return document.createTextNode('???');
