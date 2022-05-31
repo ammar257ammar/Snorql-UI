@@ -45,7 +45,7 @@ Live Demo of Snorql extended:  [Demo 1](https://wikipathways.github.io/snorql-ex
 
 - if you want to get a URL for your query (automatically generated for example) without using the permanent link, then you can use the following Javascript code:
 
-```{javascript}
+```javascript
 # the SPARQL endpoint URL followed by the query variable 'q'
 let endpoint = "https://sparql.wikipathways.org/?q=";
 
