@@ -80,3 +80,7 @@ footer p{
     background-color: #aaa;
     border-color: #666;
 }
+
+.container-fluid{
+    max-width: 1600px;
+}
