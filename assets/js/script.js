@@ -148,6 +148,22 @@ jQuery(document).ready(function() {
             $('#examplesModal').modal();
         });
 
+        jQuery("#show-prefixes").on("click",function(event){
+            event.preventDefault();
+            prefixesUrl = jQuery("#endpoint").val().replace(/\/$/, "")+"?help=nsdecl";
+
+            fetch(prefixesUrl)
+                .then((response) => response.text())
+                .then((html) => {
+                    document.getElementById("prefixesModalBody").innerHTML = $(html).find('#help > table').prop('outerHTML');
+                })
+                .catch((error) => {
+                    document.getElementById("prefixesModalBody").innerHTML = "<h4>Could not obtain prefix information. This functionality works with Virtuoso-based SPARQL endpoints only.</h4>";
+                });
+
+            $('#prefixesModal').modal().find('#prefixesModalBody');
+        });
+
         jQuery("#generate-permalink").on("click",function(e){
 
             e.preventDefault();
