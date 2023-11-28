@@ -136,11 +136,13 @@ jQuery(document).ready(function() {
 
         jQuery("#enter-fullscreen").on("click",function(){
             document.getElementById("fullscreen-navbar").style.display="block";
+            document.getElementById("footer").style.display="none";
             editor.setOption("fullScreen", !editor.getOption("fullScreen"));
         });
 
         jQuery("#exit-fullscreen").on("click",function(){
             document.getElementById("fullscreen-navbar").style.display="none";
+            document.getElementById("footer").style.display="block";
             if (editor.getOption("fullScreen")) editor.setOption("fullScreen", false);
         });
 
