@@ -1,0 +1,30 @@
+version: "3"
+
+services:
+  chembl-virtuoso:
+    image: openlink/virtuoso-opensource-7:7.2.11
+    restart: always
+    container_name: chembl-virtuoso
+    volumes:
+      - IMPORT_DIR:/import # directory where RDF files are located to be imported into Virtuoso
+      - VIRTUOSO_DB_PERSISTENT_DIR:/opt/virtuoso-opensource/database # directory to persist the Virtuoso database
+    environment:
+      - DBA_PASSWORD=CONDUCTOR_PASSWORD
+      - SPARQL_UPDATE=false
+    ports:
+      - "8899:8890"
+      - "1133:1111"
+  snorql:
+    image: aammar/snorql-httpd:latest
+    restart: always
+    container_name: snorql
+    #volumes:
+    #  - SNORQL_WEB_FILES_DIR:/usr/local/apache2/htdocs # To customize the snorql interface, clone the GitHub repo and use its directory as SNORQL_WEB_FILES_DIR
+    environment:
+      - SNORQL_ENDPOINT=ENDPOINT_URL
+      - SNORQL_EXAMPLES_REPO=EXAMPLES_REPO_URL
+      - SNORQL_TITLE=SNORQL_TITLE_STRING
+      - DEFAULT_GRAPH=ENDPOINT_DEFAULT_GRAPH_URL
+    ports:
+      - "8088:80"
+      - "4430:443"
