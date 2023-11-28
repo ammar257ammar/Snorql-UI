@@ -290,7 +290,7 @@ function displayResult(json, resultTitle) {
 
     var resCount = document.createElement("small");
     resCount.classList.add("text-muted");
-    resCount.appendChild(document.createTextNode(" ("+json.results.bindings.length+" results) Execution Time: "+json.executionTime));
+    resCount.appendChild(document.createTextNode(" ("+json.results.bindings.length+" results in "+json.executionTime+" seconds)"));
 
     var title = document.createElement('h3');
     title.appendChild(document.createTextNode(resultTitle));
