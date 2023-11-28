@@ -84,3 +84,7 @@ footer p{
 .container-fluid{
     max-width: 1600px;
 }
+
+.buttons-holder .btn{
+    margin: 3px;
+}
