@@ -198,7 +198,7 @@ SPARQL.Service = function(endpoint) {
 		this._queued_queries.push([q,f,p]); 
 	};
 	this._markRunning = function(q) { this._active_queries++; };
-	this._markDone    = function(q) { 
+	this._markDone    = function(q) {
 		this._active_queries--;
 		//document.getElementById('log').innerHTML+="query done. " + this._active_queries + " queries still active.<br>";
 		if (this._queued_queries[this._next_in_queue] != null && this._canRun()) {
@@ -224,7 +224,7 @@ SPARQL.Service = function(endpoint) {
 			};
 		})(query_form);
 	}
-	
+
 	//------------
 	// constructor
 
@@ -308,8 +308,19 @@ SPARQL.Query = function(service, priority) {
         //alert(xhr.responseText);
 		SPARQL.statistics.successes++;
 		_service._markDone(this);
+
+        var output = null;
+
+        if(_output == 'json'){
+            var outputJson = _create_json(xhr.responseText);
+            outputJson.executionTime = xhr.executionTime;
+            output = outputJson;
+        } else{
+            output = xhr.responseText;
+        }
+
 		this._doCallback(arg.callback, 'success', arg.transformer(
-			_output == 'json' ? _create_json(xhr.responseText) : xhr.responseText
+            output
 		));
 	};
 
@@ -324,15 +335,26 @@ SPARQL.Query = function(service, priority) {
 			try {
 				if (_method != 'POST' && _method != 'GET')
 					throw("HTTP methods other than GET and POST are not supported.");
-			
+
 				var url = _method == 'GET' ? this.queryUrl() : this.service().endpoint();
 				var xhr = getXmlHttpRequest(url);
+
+                var startTime = 0;
+                var endTime = 0;
+
+                xhr.onreadystatechange = function() {
+                    if(this.readyState == 1) startTime = performance.now();
+                    if (this.readyState == 4 && this.status == 200) {
+                        endTime = performance.now();
+                        this.executionTime = (endTime - startTime)/1000;
+                    }
+                };
 				var content = null;
 
 				try {
                     if (!document.domain || ((url.match(/^http:\/\//) && url.slice(7, document.domain.length + 7) != document.domain || url.match(/^https:\/\//) && url.slice(8, document.domain.length + 8) != document.domain) && window.netscape && netscape.security && netscape.security.PrivilegeManager)) {
 						netscape.security.PrivilegeManager.enablePrivilege( "UniversalBrowserRead");
-						netscape.security.PrivilegeManager.enablePrivilege( "UniversalXPConnect"); 
+						netscape.security.PrivilegeManager.enablePrivilege( "UniversalXPConnect");
 					}
 				} catch(e) {
 					alert("Cross-site requests prohibited. You will only be able to SPARQL the origin site: " + e);
@@ -355,7 +377,7 @@ SPARQL.Query = function(service, priority) {
 	
 				var callbackData = {
 					scope: this,
-					success: this._querySuccess, 
+					success: this._querySuccess,
 					failure: this._queryFailure,
 					argument: {
 						transformer: transformer,

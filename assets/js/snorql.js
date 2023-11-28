@@ -1,5 +1,5 @@
-var _endpoint = "http://sparql.wikipathways.org/sparql";
-var _examples_repo = "https://github.com/wikipathways/SPARQLQueries";
+var _endpoint = "https://chemblmirror.rdf.bigcat-bioinformatics.org/sparql";
+var _examples_repo = "https://github.com/BiGCAT-UM/ChEMBL-SPARQL-Queries";
 var _defaultGraph = "";
 var _namespaces = snorql_namespacePrefixes;
 
@@ -290,7 +290,7 @@ function displayResult(json, resultTitle) {
 
     var resCount = document.createElement("small");
     resCount.classList.add("text-muted");
-    resCount.appendChild(document.createTextNode(" ("+json.results.bindings.length+" results)"));
+    resCount.appendChild(document.createTextNode(" ("+json.results.bindings.length+" results) Execution Time: "+json.executionTime));
 
     var title = document.createElement('h3');
     title.appendChild(document.createTextNode(resultTitle));
