@@ -33,6 +33,12 @@ jQuery(document).ready(function() {
 
             var query = editor.getDoc().getValue();
             var queryText = getPrefixes() + query;
+
+            var queryEncoded = "?q="+encodeURIComponent(query);
+            var url = window.location.href.split('?')[0] + queryEncoded;
+
+            window.history.replaceState(null, "", url);
+
             doQuery(jQuery("#endpoint").val(), query, function(json) { displayResult(json, "SPARQL results"); });
 
 		});
