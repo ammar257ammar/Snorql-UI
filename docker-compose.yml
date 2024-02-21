@@ -6,8 +6,7 @@ services:
     restart: always
     container_name: chembl-virtuoso
     volumes:
-      - IMPORT_DIR:/import # directory where RDF files are located to be imported into Virtuoso
-      - VIRTUOSO_DB_PERSISTENT_DIR:/opt/virtuoso-opensource/database # directory to persist the Virtuoso database
+      - VIRTUOSO_DB_PERSISTENT_DIR:/database # directory to persist the Virtuoso database. If empty dir, a new database will be created
     environment:
       - DBA_PASSWORD=CONDUCTOR_PASSWORD
       - SPARQL_UPDATE=false
