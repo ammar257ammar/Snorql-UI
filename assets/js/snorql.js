@@ -77,7 +77,7 @@ function mainAjax(link, repo){
                 if(segments.length == 1){
 
                     node.text = segments[0];
-                    node.href = "https://raw.githubusercontent.com/"+repo+"/master/"+path;
+                    node.href = "https://raw.githubusercontent.com/"+repo+"/main/"+path;
                     node.icon = 'glyphicon glyphicon-file';
 
                     tree.push(node);
@@ -98,7 +98,7 @@ function mainAjax(link, repo){
                     }
 
                     node.text = segments[1];
-                    node.href = "https://raw.githubusercontent.com/"+repo+"/master/"+path;
+                    node.href = "https://raw.githubusercontent.com/"+repo+"/main/"+path;
                     node.icon = 'glyphicon glyphicon-file';
 
                     tree[index].nodes.push(node);
@@ -135,7 +135,7 @@ function mainAjax(link, repo){
                         segments[2] = segments[2].substring(0,20)+"..";
                     }
                     node.text = segments[2];
-                    node.href = "https://raw.githubusercontent.com/"+repo+"/master/"+path;
+                    node.href = "https://raw.githubusercontent.com/"+repo+"/main/"+path;
                     node.icon = 'glyphicon glyphicon-file';
 
                     tree[index].nodes[index2].nodes.push(node);
@@ -176,7 +176,7 @@ function fetchExamples(suffix="") {
 
         if(repo.includes("https://github.com")){
 
-            link = "https://api.github.com/repos/"+repo.substring(19)+"/git/trees/master?recursive=1";
+            link = "https://api.github.com/repos/"+repo.substring(19)+"/git/trees/main?recursive=1";
 
             var pager = mainAjax(link, repo.substring(19));
 
