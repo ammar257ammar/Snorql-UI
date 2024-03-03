@@ -10,11 +10,13 @@ Live Demo of Snorql-UI:  [Demo 1](https://wikipathways.github.io/snorql-extended
 
 ## Features
 
-1.  Modern web UI built with [HTML5](https://en.wikipedia.org/wiki/HTML5), [Bootstrap 3.3.7](https://getbootstrap.com/docs/3.3/getting-started/)  and [JQuery](https://jquery.com/).
+1.  Modern web UI built with [HTML5](https://en.wikipedia.org/wiki/HTML5), [Bootstrap](https://getbootstrap.com/docs/3.3/getting-started/) and [JQuery](https://jquery.com/).
 2.  Responsive design with wonderful look on mobiles and tablets.
 3.  Text editor [CodeMirror](https://codemirror.net/) for the SPARQL query with awesome features like SPARQL syntax highlighter, line numbering and bracket matching.
-4.  SPARQL examples panel that can fetch SPARQL queries (.rq extension) from any GitHub repository on fly and execute them against the SPARQL endpoint of your choice
-5.  No need for any backend programming language!! it is totally a front end application.
+4.  SPARQL examples panel that can fetch SPARQL queries (.rq extension) from any GitHub repository on the fly and execute them against the SPARQL endpoint of your choice.
+5.  Export query results into multiple file formats.
+6.  Generate short URLs for your queries for easy sharing.
+7.  No need for any backend programming language!! it is totally a front end application.
 
 
 
@@ -23,7 +25,6 @@ Live Demo of Snorql-UI:  [Demo 1](https://wikipathways.github.io/snorql-extended
 - If you have the SPARQL queries directly inside the repo, then use the full the URL of the repo like the following:
 
   [https://github.com/wikipathways/SPARQLQueries](https://github.com/wikipathways/SPARQLQueries)
-
 
 
 - But in case the SPARQL queries are inside a folder in the repository, then you need to provide a GitHub API URL for that folder and that is constructed as follows:
