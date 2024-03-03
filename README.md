@@ -30,7 +30,7 @@ Live Demo of Snorql-UI:  [Demo 1](https://wikipathways.github.io/snorql-extended
 
   If the URL of the folder of the queries is this (for example):
 
-  https://github.com/egonw/SARS-CoV-2-Queries/tree/master/sparql
+  https://github.com/egonw/SARS-CoV-2-Queries/tree/main/sparql
 
   Then the URL template you should use is:
 
