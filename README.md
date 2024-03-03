@@ -1,10 +1,10 @@
-## Snorql - Extended Edition
+## Snorql-UI - A SPARQL Explorer
 
-Simple SPARQL explorer based on the original idea of [kurtjx/SNORQL](https://github.com/kurtjx/SNORQL) and adapted from the fork [eccenca/SNORQL](https://github.com/eccenca/SNORQL) 
+Simple SPARQL query interface based on the original idea of [kurtjx/SNORQL](https://github.com/kurtjx/SNORQL) and adapted from the fork [eccenca/SNORQL](https://github.com/eccenca/SNORQL) 
 
-The purpose of this project is to develop a fully new UI implementation for Snorql that uses the latest web standards for HTML5, CSS3 and JQuery.
+The purpose of this project is to develop a fully new UI implementation for Snorql that uses the latest web standards for HTML5, CSS3 and JQuery, and add new productivity features to facilitate query retrieval and sharing.
 
-Live Demo of Snorql extended:  [Demo 1](https://wikipathways.github.io/snorql-extended) 	 [Demo 2](https://ammar257ammar.github.io/snorql-extended)
+Live Demo of Snorql-UI:  [Demo 1](https://wikipathways.github.io/snorql-extended) 	 [Demo 2](https://ammar257ammar.github.io/snorql-extended)
 
 
 
