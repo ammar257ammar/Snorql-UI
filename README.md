@@ -4,7 +4,7 @@ Simple SPARQL query interface based on the original idea of [kurtjx/SNORQL](http
 
 The purpose of this project is to develop a fully new UI implementation for Snorql that uses the latest web standards for HTML5, CSS3 and JQuery, and add new productivity features to facilitate query retrieval and sharing.
 
-Live Demo of Snorql-UI:  [Demo 1](https://wikipathways.github.io/snorql-extended) 	 [Demo 2](https://ammar257ammar.github.io/snorql-extended)
+Live Demo of Snorql-UI:  [Demo 1](https://wikipathways.github.io/snorql-extended) 	 [Demo 2](https://ammar257ammar.github.io/Snorql-UI)
 
 
 
