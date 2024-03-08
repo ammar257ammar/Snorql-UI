@@ -1,5 +1,5 @@
 #!/bin/bash
 
-bash /script.sh
+bash /app/script.sh
 
 bash httpd-foreground
