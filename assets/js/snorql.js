@@ -30,6 +30,19 @@ function getCookie(cname) {
     return "";
 }
 
+function findGetParameter(parameterName) {
+    var result = null,
+        tmp = [];
+    location.search
+        .substr(1)
+        .split("&")
+        .forEach(function (item) {
+          tmp = item.split("=");
+          if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+        });
+    return result;
+}
+
 function changeEndpoint() {
     var newEp = document.getElementById("endpoint").value;
     setCookie("endpoint", newEp);
@@ -210,8 +223,13 @@ function fetchExamples(suffix="") {
 
 function start(){
 
+    var getvar_endpoint = findGetParameter("endpoint");
     var ep = getCookie('endpoint');
-    if (ep != "") {
+    
+    if (getvar_endpoint != null) {
+        console.log("snorql");
+        document.getElementById("endpoint").value = getvar_endpoint;
+    } else if (ep != ""){
         _endpoint = ep;
         document.getElementById('endpoint').value = ep;
     }else{
